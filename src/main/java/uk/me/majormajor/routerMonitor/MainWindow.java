@@ -5,7 +5,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListCellRenderer;
@@ -57,7 +59,15 @@ public class MainWindow extends JFrame {
 	{
 		if (statChooser.getItemCount() == 0 && ! main.getSamples().isEmpty())
 		{
-			statChooser.setModel(new DefaultComboBoxModel<Stat>(Stat.values()));
+			List<Stat> chartableStats = new ArrayList<Stat>();
+			for (Stat stat : Stat.values())
+			{
+				if (Number.class.equals(stat.getDataType()))
+				{
+					chartableStats.add(stat);
+				}
+			}
+			statChooser.setModel(new DefaultComboBoxModel<Stat>(chartableStats.toArray(new Stat[0])));
 			statChooser.setSelectedItem(Stat.STAT_NOISE_MARGIN_DOWNSTREAM);
 		}
 	}

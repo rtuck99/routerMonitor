@@ -35,7 +35,7 @@ public class ChartPanel extends JPanel {
 	public ChartPanel (Main aMain)
 	{
 		this.main = aMain;
-		setPreferredSize(new Dimension(320, 200));
+		setPreferredSize(new Dimension(480, 200));
 		setOpaque(true);
 		minValue = Float.MAX_VALUE;
 		maxValue = Float.MIN_VALUE;
@@ -54,7 +54,10 @@ public class ChartPanel extends JPanel {
 					{
 						highlightedDs = ds;
 						DateFormat df = DateFormat.getTimeInstance();
-						String tooltip = "(" + df.format(new Date(ds.getTimestamp())) + ", " + String.format("%.2f", ((Number) ds.getData().get(stat)).floatValue()) + ")";
+						Number value = (Number) ds.getData().get(stat);
+						String tooltip = "(" + df.format(new Date(ds.getTimestamp())) + 
+								", " + 
+								(value != null ? String.format("%.2f", value.floatValue()) : "no data") + ")";
 						setToolTipText(tooltip );
 						repaint();
 						break;

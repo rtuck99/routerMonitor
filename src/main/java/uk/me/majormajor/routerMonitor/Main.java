@@ -1,10 +1,10 @@
 package uk.me.majormajor.routerMonitor;
-import java.awt.Toolkit;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.net.HttpURLConnection;
+import java.net.NoRouteToHostException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -15,19 +15,15 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.swing.LookAndFeel;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.xml.bind.DatatypeConverter;
 
-import uk.me.majormajor.routerMonitor.DataSample;
-import uk.me.majormajor.routerMonitor.MainWindow;
-
 
 public class Main extends SwingWorker<Void, DataSample>{
-	private static final String ROUTER_STATS_URL = "http://192.168.0.1/sky_system.html";
+	private static final String ROUTER_STATS_PATH = "/sky_system.html";
 	private String userName = PrefsHelper.getUserName();
 	private String password = PrefsHelper.getPassword();
 	
@@ -82,8 +78,20 @@ public class Main extends SwingWorker<Void, DataSample>{
 			{
 				try {
 					HttpURLConnection connection = getConnection();
-					String s = getStatusDocument(connection);
-					Map<Stat, Object> stats = extractStats(s);
+					Map<Stat, Object> stats = null;
+					try
+					{
+						String s = getStatusDocument(connection);
+						stats = extractStats(s);
+					}
+					catch (MonitorException e)
+					{
+						stats = new HashMap<Stat, Object>();
+						if (e.getMonitorError() != null)
+						{
+							stats.put(Stat.STAT_ERROR_RETRIEVING_DATA, e.getMonitorError());
+						}
+					}
 					publish(new DataSample(stats));
 					try {
 						Thread.sleep(2000);
@@ -118,7 +126,7 @@ public class Main extends SwingWorker<Void, DataSample>{
 	private HttpURLConnection getConnection() throws IOException
 	{
 		HttpURLConnection connection;
-			connection = (HttpURLConnection) new URL(ROUTER_STATS_URL).openConnection();
+			connection = (HttpURLConnection) new URL(getRouterURL()).openConnection();
 		connection.setAllowUserInteraction(false);
 		connection.setUseCaches(false);
 		String authenticationString = userName + ":" + password;
@@ -129,6 +137,10 @@ public class Main extends SwingWorker<Void, DataSample>{
 
 		return connection;
 		
+	}
+
+	private String getRouterURL() {
+		return "http://" + PrefsHelper.getIPAddress() + ROUTER_STATS_PATH;
 	}
 	
 	private static long parseDuration(String s)
@@ -219,7 +231,7 @@ public class Main extends SwingWorker<Void, DataSample>{
 		return stats;
 	}
 	
-	private String getStatusDocument(HttpURLConnection connection)
+	private String getStatusDocument(HttpURLConnection connection) throws MonitorException
 	{
 		String s = "Error: failed to read content";
 		try {
@@ -238,6 +250,10 @@ public class Main extends SwingWorker<Void, DataSample>{
 				status = connection.getResponseCode();
 				System.out.println("Retried and got code " + status);
 			}
+			if (status != HttpURLConnection.HTTP_OK)
+			{
+				throw new MonitorException(MonitorError.errorForResponseCode(status));
+			}
 			InputStream is = (InputStream) connection.getContent();
 
 			try {
@@ -252,10 +268,10 @@ public class Main extends SwingWorker<Void, DataSample>{
 			} finally {
 				is.close();
 			}
-		} 
+		}
 		catch (IOException e)
 		{
-			e.printStackTrace();
+			throw new MonitorException(MonitorError.errorForException(e));
 		}
 		finally
 		{

@@ -23,7 +23,7 @@ public class TrayMonitor {
 		}
 	}
 
-	private enum TrayStatus
+	public enum TrayStatus
 	{
 		NOT_CONNECTED,
 		GREEN,
@@ -78,28 +78,33 @@ public class TrayMonitor {
 			return TrayStatus.NOT_CONNECTED;
 		}
 		DataSample mostRecent = samples.get(samples.size() - 1);
-				
-		TrayStatus status = status((Number)mostRecent.getData().get(Stat.STAT_NOISE_MARGIN_DOWNSTREAM), null, 0, 6); 
-		status = status((Number)mostRecent.getData().get(Stat.STAT_NOISE_MARGIN_UPSTREAM), status, 0, 6); 
-		status = status((Number)mostRecent.getData().get(Stat.STAT_DOWNSTREAM_KBPS), status, 0, 6000); 
-		status = status((Number)mostRecent.getData().get(Stat.STAT_UPSTREAM_KBPS), status, 0, 256); 
+		
+		if (mostRecent.getData().containsKey(Stat.STAT_ERROR_RETRIEVING_DATA))
+		{
+			return TrayStatus.NOT_CONNECTED;
+		}
+		
+		TrayStatus status = status((Number)mostRecent.getData().get(Stat.STAT_NOISE_MARGIN_DOWNSTREAM), Stat.STAT_NOISE_MARGIN_DOWNSTREAM, null); 
+		status = status((Number)mostRecent.getData().get(Stat.STAT_NOISE_MARGIN_UPSTREAM), Stat.STAT_NOISE_MARGIN_UPSTREAM,  status); 
+		status = status((Number)mostRecent.getData().get(Stat.STAT_DOWNSTREAM_KBPS), Stat.STAT_DOWNSTREAM_KBPS,  status); 
+		status = status((Number)mostRecent.getData().get(Stat.STAT_UPSTREAM_KBPS), Stat.STAT_UPSTREAM_KBPS,  status); 
 		
 		return status;
 	}
 
-	private TrayStatus status(Number n, TrayStatus currentStatus, float redThresh, float amberThresh)
+	private TrayStatus status(Number n, Stat stat, TrayStatus currentStatus)
 	{
 		if (n == null)
 		{
 			return currentStatus;
 		}
 		if (currentStatus == TrayStatus.RED ||
-				n.floatValue() <= redThresh)
+				n.floatValue() <= PrefsHelper.getThreshold(stat, TrayStatus.RED))
 		{
 			return TrayStatus.RED;
 		}
 		if (currentStatus == TrayStatus.AMBER ||
-				n.floatValue() <= amberThresh)
+				n.floatValue() <= PrefsHelper.getThreshold(stat, TrayStatus.AMBER))
 		{
 			return TrayStatus.AMBER;
 		}
@@ -112,8 +117,10 @@ public class TrayMonitor {
 		switch (status)
 		{
 		case AMBER:
-		case NOT_CONNECTED:
 			resourceName = "statusAmber.png";
+			break;
+		case NOT_CONNECTED:
+			resourceName = "statusBlack.png";
 			break;
 		case GREEN:
 			resourceName = "statusGreen.png";
@@ -142,10 +149,17 @@ public class TrayMonitor {
 		String tt = "Router Monitor";
 		if (ds != null)
 		{
-			String snrUp = ds.getAsString(Stat.STAT_NOISE_MARGIN_UPSTREAM);
-			String snrDown = ds.getAsString(Stat.STAT_NOISE_MARGIN_DOWNSTREAM);
-			String lineSpeed = ds.getAsString(Stat.STAT_DOWNSTREAM_KBPS);
-			tt += "\r\nLine Speed:" + lineSpeed + "kbps\r\nSNR Down:" + snrDown + "dB\r\nSNR Up:" + snrUp + "dB";
+			if (ds.getData().containsKey(Stat.STAT_ERROR_RETRIEVING_DATA))
+			{
+				tt += " \r\n" + ((MonitorError)ds.getData().get(Stat.STAT_ERROR_RETRIEVING_DATA)).getDescription();
+			}
+			else
+			{
+				String snrUp = ds.getAsString(Stat.STAT_NOISE_MARGIN_UPSTREAM);
+				String snrDown = ds.getAsString(Stat.STAT_NOISE_MARGIN_DOWNSTREAM);
+				String lineSpeed = ds.getAsString(Stat.STAT_DOWNSTREAM_KBPS);
+				tt += " \r\nLine Speed:" + lineSpeed + "kbps \r\nSNR Down:" + snrDown + "dB \r\nSNR Up:" + snrUp + "dB";
+			}
 		}
 		trayIcon.setToolTip(tt);
 	}
