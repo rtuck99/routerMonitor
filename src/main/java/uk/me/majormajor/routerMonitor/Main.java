@@ -238,7 +238,6 @@ public class Main extends SwingWorker<Void, DataSample>{
 			connection.connect();
 
 			int status = connection.getResponseCode();
-			System.out.println("Got status " + status);
 
 			if (status == HttpURLConnection.HTTP_UNAUTHORIZED &&
 					connection.getHeaderFields().containsKey("WWW-Authenticate") &&
