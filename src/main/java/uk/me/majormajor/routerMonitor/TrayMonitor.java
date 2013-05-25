@@ -61,6 +61,15 @@ public class TrayMonitor {
 		});
 		trayPopup.add(settingsMenuItem);
 		
+		MenuItem aboutMenuItem = new MenuItem("About...");
+		aboutMenuItem.addActionListener(new ActionListener() {			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				new AboutDialog().setVisible(true);
+			}
+		});
+		trayPopup.add(aboutMenuItem);
+		
 		trayIcon.setPopupMenu(trayPopup);
 		trayIcon.setToolTip("Router Monitor");
 		try {

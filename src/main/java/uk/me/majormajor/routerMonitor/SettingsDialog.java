@@ -1,14 +1,18 @@
 package uk.me.majormajor.routerMonitor;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.util.prefs.Preferences;
 
+import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -19,7 +23,9 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
+import javax.swing.KeyStroke;
 import javax.swing.SpinnerNumberModel;
+import javax.swing.SwingUtilities;
 
 import uk.me.majormajor.routerMonitor.TrayMonitor.TrayStatus;
 
@@ -47,31 +53,32 @@ public class SettingsDialog extends JDialog {
 		JPanel topPanel = new JPanel();
 		topPanel.setBorder(BorderFactory.createTitledBorder("Authentication"));
 		topPanel.setLayout(new GridBagLayout());
-		topPanel.add(new JLabel("Router IP:"), new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
-		topPanel.add(new JLabel("User name:"), new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
-		topPanel.add(new JLabel("Password:"), new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
+		Insets insets = new Insets(4, 4, 4, 4);
+		topPanel.add(new JLabel("Router IP:"), new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, insets, 0, 0));
+		topPanel.add(new JLabel("User name:"), new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, insets, 0, 0));
+		topPanel.add(new JLabel("Password:"), new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, insets, 0, 0));
 
 		ipAddressField = new JTextField(20);
 		ipAddressField.setText(PrefsHelper.getIPAddress());
-		topPanel.add(ipAddressField, new GridBagConstraints(1, 0, 1, 1, 1.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
+		topPanel.add(ipAddressField, new GridBagConstraints(1, 0, 1, 1, 1.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, insets, 0, 0));
 		
 		userNameField = new JTextField(20);
 		userNameField.setText(PrefsHelper.getUserName());
-		topPanel.add(userNameField, new GridBagConstraints(1, 1, 1, 1, 1.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
+		topPanel.add(userNameField, new GridBagConstraints(1, 1, 1, 1, 1.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, insets, 0, 0));
 		passwordField = new JPasswordField(20);
 		passwordField.setText(PrefsHelper.getPassword());
-		topPanel.add(passwordField, new GridBagConstraints(1, 2, 1, 1, 1.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
+		topPanel.add(passwordField, new GridBagConstraints(1, 2, 1, 1, 1.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, insets, 0, 0));
 		mainPanel.add(topPanel);
 		
 		mainPanel.add(thresholdPanel());
 		getContentPane().add(mainPanel, BorderLayout.CENTER);
 		
-		Box okCancelPanel = new Box(BoxLayout.X_AXIS);
-		okCancelPanel.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
-		okCancelPanel.add(Box.createHorizontalGlue());
-		JButton okButton = new JButton("Ok");
+		JPanel bottomPanel = new JPanel(new BorderLayout());
+		bottomPanel.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
+		JButton okButton = new JButton();
+		JPanel okCancelPanel = new JPanel(new GridLayout(1, 2, 4, 0));
 		okCancelPanel.add(okButton);
-		okButton.addActionListener(new ActionListener() {
+		okButton.setAction(new AbstractAction("Ok") {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				PrefsHelper.setIPAddress(ipAddressField.getText());
@@ -91,21 +98,22 @@ public class SettingsDialog extends JDialog {
 				dispose();
 			}
 		});
-		
-		okCancelPanel.add(Box.createHorizontalStrut(4));
-		JButton cancelButton = new JButton("Cancel");
+		getRootPane().setDefaultButton(okButton);
+		JButton cancelButton = new JButton();
 		okCancelPanel.add(cancelButton);
-		cancelButton.addActionListener(new ActionListener() {
+		cancelButton.setAction(new AbstractAction("Cancel") {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				setVisible(false);
 				dispose();
 			}
 		});
-		getContentPane().add(okCancelPanel, BorderLayout.SOUTH);
+		bottomPanel.add(okCancelPanel, BorderLayout.EAST);
+		getContentPane().add(bottomPanel, BorderLayout.SOUTH);
 		
 		pack();
 		setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+		setLocationRelativeTo(null);
 		setVisible(true);
 	}
 	

@@ -181,6 +181,11 @@ public class ChartPanel extends JPanel {
 				minTime = Math.min(minTime, t);
 				maxTime = Math.max(maxTime, t);
 			}
+			
+			if (! Float.isNaN(stat.getMinimumChartValue()))
+			{
+				minValue = Math.min(minValue, stat.getMinimumChartValue());
+			}
 			rangeHash = stat + ":" + main.getSamples().size();
 		}
 	}

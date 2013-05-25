@@ -5,8 +5,14 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>uk.me.majormajor.routerMonitor</groupId>
   <artifactId>routerMonitor</artifactId>
-  <version>0.1-SNAPSHOT</version>
+  <version>0.1.0-SNAPSHOT</version>
   <packaging>jar</packaging>
+  
+  <name>Router Monitor</name>
+  <description>Sky ADSL Router Monitor</description>
+  <organization><name>Robert Tuck</name></organization>
+  
+  
   <build>
 	  <plugins>
 	  	<plugin>
@@ -25,6 +31,7 @@
 	          <archive>
 	          	<manifest>
 	          		<mainClass>uk.me.majormajor.routerMonitor.Main</mainClass>
+	          		<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
 	          	</manifest>
 	          </archive>
 	        </configuration>

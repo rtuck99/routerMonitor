@@ -52,6 +52,7 @@ public class MainWindow extends JFrame {
 		});
 		getContentPane().add(statChooser, BorderLayout.NORTH);
 		pack();
+		setLocationRelativeTo(null);
 		setVisible(true);
 	}
 	
