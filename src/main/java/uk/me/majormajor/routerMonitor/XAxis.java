@@ -29,7 +29,7 @@ public class XAxis extends JComponent {
 		String startText = new Date(chartPanel.getMinTime()).toString();
 		String endText = new Date(chartPanel.getMaxTime()).toString();
 		
-		g2.drawString(startText, 0, 12);
+		g2.drawString(startText, 0, 14);
 		TextLayout tl = new TextLayout(endText, g2.getFont(), g2.getFontRenderContext());
 		Rectangle2D rc = tl.getBounds();
 		g2.drawString(endText, (int)(getWidth() - rc.getWidth()) - 1, 14);
