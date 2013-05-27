@@ -7,9 +7,9 @@
   <artifactId>routerMonitor</artifactId>
   <version>0.1.0</version>
   <packaging>jar</packaging>
-  
   <name>Router Monitor</name>
   <description>Sky ADSL Router Monitor</description>
+  <url>https://github.com/rtuck99/routerMonitor</url>
   <organization><name>Robert Tuck</name></organization>
   <licenses>
   	<license>
@@ -17,7 +17,17 @@
   		<url>http://opensource.org/licenses/BSD-2-Clause</url>
   	</license>
   </licenses>
-  
+  <developers>
+  	<developer>
+  		<id>rtuck99</id>
+  		<name>Robert Tuck</name>
+  		<email>robt@majormajor.me.uk</email>
+  	</developer>
+  </developers>
+  <scm>
+  	<url>https://github.com/rtuck99/routerMonitor</url>
+  	<connection>scm:git:https://github.com/rtuck99/routerMonitor.git</connection>
+  </scm>
   <build>
 	  <plugins>
 	  	<plugin>
@@ -65,6 +75,30 @@
 	      			<phase>package</phase>
 	      			<goals>
 	      				<goal>single</goal>
+	      			</goals>
+	      		</execution>
+	      	</executions>
+	      </plugin>
+	      <plugin>
+	      	<groupId>org.apache.maven.plugins</groupId>
+	      	<artifactId>maven-source-plugin</artifactId>
+	      	<version>2.0.4</version>
+	      	<executions>
+	      		<execution>
+	      			<goals>
+	      				<goal>jar</goal>
+	      			</goals>
+	      		</execution>
+	      	</executions>
+	      </plugin>
+	      <plugin>
+	      	<groupId>org.apache.maven.plugins</groupId>
+	      	<artifactId>maven-javadoc-plugin</artifactId>
+	      	<version>2.3</version>
+	      	<executions>
+	      		<execution>
+	      			<goals>
+	      				<goal>jar</goal>
 	      			</goals>
 	      		</execution>
 	      	</executions>
